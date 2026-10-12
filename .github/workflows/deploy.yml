@@ -131,7 +131,6 @@ jobs:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
           IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
-
         run: |
           ssh "$USER@$HOST" \
             "IMAGE='$IMAGE' bash -s" <<'REMOTE'
@@ -139,11 +138,12 @@ jobs:
 
           IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
 
-          docker pull "$IMAGE"
+          sudo -n docker info > /dev/null
+          sudo -n docker pull "$IMAGE"
 
-          docker rm -f devops-app || true
+          sudo -n docker rm -f devops-app || true
 
-          docker run -d \
+          sudo -n docker run -d \
             --name devops-app \
             --restart unless-stopped \
             --read-only \
@@ -162,6 +162,6 @@ jobs:
             sleep 3
           done
 
-          docker logs devops-app
+          sudo -n docker logs devops-app
           exit 1
           REMOTE
